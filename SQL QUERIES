@@ -1,4 +1,4 @@
-Approval rate for loans based on the type of home ownership ??
+1- Approval rate for loans based on the type of home ownership ??
 -- SELECT
     person_home_ownership,
     SUM(CASE WHEN loan_status = 1 THEN 1 ELSE 0 END) AS approved_loans,
@@ -9,7 +9,7 @@ Approval rate for loans based on the type of home ownership ??
   GROUP BY
     person_home_ownership;
 
-How does the intent behind taking a loan  relate to the loan amount and the interest rate??
+2- How does the intent behind taking a loan  relate to the loan amount and the interest rate??
 -- SELECT
     loan_intent,
     COUNT(*) AS total_loans,
@@ -24,7 +24,7 @@ FROM
 GROUP BY
     loan_intent;
 
-Does borrower's employment influence their likelihood of loan approval or interest rate??
+3- Does borrower's employment influence their likelihood of loan approval or interest rate??
 -- SELECT
     person_emp_length,
     COUNT(*) AS total_applications,
@@ -38,7 +38,7 @@ GROUP BY
 ORDER BY
     person_emp_length desc;
 
-What is the default rate for loans in this dataset??
+4- What is the default rate for loans in this dataset??
 -- SELECT
     SUM(CASE WHEN loan_status = 1 THEN 1 ELSE 0 END) AS defaulted_loans,
     COUNT(*) AS total_loans,
@@ -46,7 +46,7 @@ What is the default rate for loans in this dataset??
 FROM
     credit_risk;
 
-Is there a relationship between a borrower's credit history length and their likelihood of loan approval??
+5- Is there a relationship between a borrower's credit history length and their likelihood of loan approval??
 -- SELECT
     cb_person_cred_hist_length,
     COUNT(*) AS total_applications,
@@ -59,7 +59,7 @@ Is there a relationship between a borrower's credit history length and their lik
  ORDER BY
     cb_person_cred_hist_length;
 
-Among borrowers who defaulted on their loans, what is the average credit history length??
+6- Among borrowers who defaulted on their loans, what is the average credit history length??
 -- SELECT
     AVG(cb_person_cred_hist_length) AS avg_credit_history_length
 FROM
@@ -67,7 +67,7 @@ FROM
 WHERE
     loan_status = 1;
 
-how the loan percentage of income varies across different loan intents ??
+7-how the loan percentage of income varies across different loan intents ??
 -- SELECT
     loan_intent,
     AVG(loan_percent_income) AS avg_loan_percent_income,
@@ -78,7 +78,7 @@ FROM
 GROUP BY
     loan_intent;
 
-Is there a pattern in default rates based on the borrower's default history ??
+8-Is there a pattern in default rates based on the borrower's default history ??
 -- SELECT
     cb_person_default_on_file,
     COUNT(*) AS total_applications,
@@ -89,7 +89,7 @@ FROM
 GROUP BY
     cb_person_default_on_file;
 
-the relationship between a borrower's age  and the loan amount they request??
+9- the relationship between a borrower's age  and the loan amount they request??
 -- SELECT
     AVG(person_age) AS avg_age,
     MAX(person_age) AS max_age,
@@ -98,7 +98,7 @@ the relationship between a borrower's age  and the loan amount they request??
 FROM
     credit_risk;
 
-What criteria are used to approve or reject loan applications??
+10- What criteria are used to approve or reject loan applications??
 -- SELECT
     loan_status,
     AVG(person_income) AS avg_income,
@@ -116,25 +116,24 @@ SQL query to calculate the average loan amount for each unique loan purpose ('lo
 FROM credit_risk
 GROUP BY loan_intent;
 
-If 'person_home_ownership' can be mapped to states, write a SQL query to find the top 5 states with the highest average income??
+11 - If 'person_home_ownership' can be mapped to states, write a SQL query to find the top 5 states with the highest average income??
 -- SELECT state,
        AVG(person_income) AS avg_income
 FROM (
-    SELECT CASE
-               WHEN person_home_ownership = 'OWN' THEN 'State1' 
-               WHEN person_home_ownership = 'MORTGAGE' THEN 'State2' 
-               WHEN person_home_ownership = 'RENT' THEN 'State3'
-               
-               ELSE 'Unknown'
-           END AS state,
-           person_income
-    FROM credit_risk
+SELECT CASE
+WHEN person_home_ownership = 'OWN' THEN 'State1' 
+WHEN person_home_ownership = 'MORTGAGE' THEN 'State2' 
+WHEN person_home_ownership = 'RENT' THEN 'State3'
+ ELSE 'Unknown'
+ END AS state,
+ person_income
+FROM credit_risk
 ) AS mapped_data
 GROUP BY state
 ORDER BY avg_income DESC
 LIMIT 5;
 
-Determine which loan purpose has the highest default rate??
+12- Determine which loan purpose has the highest default rate??
 -- SELECT loan_intent, 
        SUM(CASE WHEN loan_status = 1 THEN 1 ELSE 0 END) AS num_defaults,
        COUNT(*) AS total_loans,
@@ -143,7 +142,7 @@ FROM credit_risk
 GROUP BY loan_intent
 ORDER BY default_rate DESC;
 
-Calculate the percentage of defaulted loans among individuals who own their homes ('person_home_ownership' = 'OWN')??
+13- Calculate the percentage of defaulted loans among individuals who own their homes ('person_home_ownership' = 'OWN')??
 -- SELECT
     (SUM(CASE WHEN loan_status = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS percentage_defaulted
 FROM
@@ -151,13 +150,13 @@ FROM
 WHERE
     person_home_ownership = 'OWN'; 
 
-Group the data by 'person_home_ownership' and calculate the average credit history length ('cb_person_cred_hist_length') for each category??
+14 -Group the data by 'person_home_ownership' and calculate the average credit history length ('cb_person_cred_hist_length') for each category??
 -- SELECT loan_intent, SUM(loan_amnt) AS total_loan_amount_approved
 FROM credit_risk
 GROUP BY loan_intent;
 ;
 
-Find individuals who have taken loans where the loan amount is significantly higher than the average loan amount for their income group?? 
+15 -Find individuals who have taken loans where the loan amount is significantly higher than the average loan amount for their income group?? 
 -- WITH AvgLoanByIncome AS (
     SELECT
         person_income,
@@ -189,24 +188,24 @@ ON
     t1.person_income = t2.person_income;
 
 
-Find individuals ('cb_person_default_on_file' = 'Y') who had a history of defaults ('loan_status' = 1) but were still approved for new loans?? 
+16 -Find individuals ('cb_person_default_on_file' = 'Y') who had a history of defaults ('loan_status' = 1) but were still approved for new loans?? 
 -- SELECT *
 FROM credit_risk
 WHERE cb_person_default_on_file = 'Y'
   AND person_age > 18 
   AND EXISTS (
       SELECT 1
-      FROM credit_risk AS subquery
-      WHERE subquery.cb_person_default_on_file = 'Y'
-        AND subquery.loan_status = 1
-        AND subquery.person_age = credit_risk.person_age
-        AND subquery.person_income = credit_risk.person_income
-        AND subquery.person_home_ownership = credit_risk.person_home_ownership
+      FROM credit_risk AS x
+      WHERE x.cb_person_default_on_file = 'Y'
+        AND x.loan_status = 1
+        AND x.person_age = credit_risk.person_age
+        AND x.person_income = credit_risk.person_income
+        AND x.person_home_ownership = credit_risk.person_home_ownership
       
   );
 
 
- calculate the average loan percent of income ('loan_percent_income') for each category??
+17 - calculate the average loan percent of income ('loan_percent_income') for each category??
 -- SELECT person_home_ownership, AVG(loan_percent_income) AS avg_loan_percent_income
 FROM credit_risk
 GROUP BY person_home_ownership;
